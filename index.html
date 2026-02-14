@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Press Start 2P', cursive;
+    background: linear-gradient(135deg, #ff8fb1, #ff4d6d, #ff8fb1);
+    background-size: 400% 400%;
+    animation: bgMove 8s infinite ease;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+}
+
+@keyframes bgMove {
+    0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+}
+
+.card-8bit {
+    background: #ff1e56;
+    border: 6px solid #fff;
+    padding: 45px 35px;
+    box-shadow: 10px 10px 0 #000;
+    width: 90%;
+    max-width: 600px;
+    transform: scale(.6);
+    opacity: 0;
+    animation: popIn .7s ease forwards;
+}
+
+@keyframes popIn {
+    to { transform: scale(1); opacity: 1 }
+}
+
+h1 {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    animation: floatText 2s infinite ease-in-out alternate;
+}
+
+@keyframes floatText {
+    from { transform: translateY(0) }
+    to { transform: translateY(-6px) }
+}
+
+#btnArea {
+    position: relative;
+    height: 160px;
+}
+
+.btn-8bit {
+    position: absolute;
+    border: 4px solid #fff;
+    padding: 16px 28px;
+    box-shadow: 4px 4px 0 #000;
+    transition: .15s;
+    animation: btnPop .5s ease forwards;
+}
+
+@keyframes btnPop {
+    from { transform: scale(.5); opacity: 0 }
+    to { transform: scale(1); opacity: 1 }
+}
+
+.btn-8bit:active {
+    transform: translate(2px, 2px);
+}
+
+.heart {
+    position: absolute;
+    font-size: 18px;
+    animation: rise 6s linear infinite;
+    opacity: .7;
+}
+
+@keyframes rise {
+    0% { transform: translateY(100vh) scale(.5); opacity: 0 }
+    10% { opacity: 1 }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0 }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card-8bit">
+    <h1>Will you be my Valentine?</h1>
+    <div id="btnArea">
+        <button id="yesBtn" class="btn btn-success btn-8bit">YES 💖</button>
+        <button id="noBtn" class="btn btn-dark btn-8bit">NO ❌</button>
+    </div>
+</div>
+
+<script>
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const area = document.getElementById("btnArea");
+
+function placeButtons() {
+    const centerX = area.clientWidth / 2 - yesBtn.offsetWidth / 2;
+    const centerY = area.clientHeight / 2 - yesBtn.offsetHeight / 2;
+
+    yesBtn.style.left = centerX + "px";
+    yesBtn.style.top = centerY + "px";
+
+    noBtn.style.left = centerX + yesBtn.offsetWidth + 20 + "px";
+    noBtn.style.top = centerY + "px";
+}
+
+function moveNo() {
+    const maxX = area.clientWidth - noBtn.offsetWidth;
+    const maxY = area.clientHeight - noBtn.offsetHeight;
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+}
+
+window.addEventListener("load", placeButtons);
+window.addEventListener("resize", placeButtons);
+noBtn.addEventListener("mouseenter", moveNo);
+noBtn.addEventListener("click", moveNo);
+
+yesBtn.addEventListener("click", () => {
+    alert("Then let's go to Iceland Coffee ❤️");
+    window.open("https://www.google.com/maps/place/Iceland+Coffee/@23.8679947,90.3769204,15.11z/data=!4m6!3m5!1s0x3755c5001c0014a1:0xffdcc8f627de1dd0!8m2!3d23.8695384!4d90.3857818!16s%2Fg%2F11wqq66qq9?entry=ttu&g_ep=EgoyMDI2MDIxMS4wIKXMDSoASAFQAw%3D%3D");
+});
+
+function createHeart() {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.textContent = "❤";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = 4 + Math.random() * 4 + "s";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 8000);
+}
+
+setInterval(createHeart, 500);
+</script>
+
+</body>
+</html>
