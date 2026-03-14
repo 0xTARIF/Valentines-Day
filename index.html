@@ -78,21 +78,10 @@
             border: 4px solid #fff;
             padding: 16px 28px;
             box-shadow: 4px 4px 0 #000;
-            animation: btnPop 0.5s ease forwards;
             cursor: pointer;
             white-space: nowrap;
             pointer-events: auto;
-        }
-
-        @keyframes btnPop {
-            from {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+            opacity: 0;
         }
 
         .btn-8bit:active {
@@ -126,14 +115,14 @@
 
     <script>
         const yesBtn = document.getElementById('yesBtn');
-        const noBtn = document.getElementById('noBtn');
-        const area = document.getElementById('btnArea');
+        const noBtn  = document.getElementById('noBtn');
+        const area   = document.getElementById('btnArea');
 
-        let lastNoX = -1;
-        let lastNoY = -1;
+        let lastNoX     = -1;
+        let lastNoY     = -1;
         let escapeTimer = null;
-        let cursorX = 0;
-        let cursorY = 0;
+        let cursorX     = 0;
+        let cursorY     = 0;
 
         document.addEventListener('mousemove', e => {
             cursorX = e.clientX;
@@ -152,22 +141,27 @@
         }
 
         function placeButtons() {
-            const m = getMetrics();
-            const totalW = m.yw + 20 + m.bw;
-            const startX = Math.max(0, (m.w - totalW) / 2);
-            const cy = Math.max(0, (m.h - m.yh) / 2);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const m      = getMetrics();
+                    const totalW = m.yw + 20 + m.bw;
+                    const startX = Math.max(0, (m.w - totalW) / 2);
+                    const yesCY  = Math.max(0, (m.h - m.yh) / 2);
+                    const noCY   = Math.max(0, (m.h - m.bh) / 2);
+                    const noX    = startX + m.yw + 20;
 
-            yesBtn.style.left = startX + 'px';
-            yesBtn.style.top  = cy + 'px';
+                    yesBtn.style.left    = startX + 'px';
+                    yesBtn.style.top     = yesCY + 'px';
+                    yesBtn.style.opacity = '1';
 
-            const noX = startX + m.yw + 20;
-            const noY = Math.max(0, (m.h - m.bh) / 2);
+                    noBtn.style.left    = noX + 'px';
+                    noBtn.style.top     = noCY + 'px';
+                    noBtn.style.opacity = '1';
 
-            noBtn.style.left = noX + 'px';
-            noBtn.style.top  = noY + 'px';
-
-            lastNoX = noX;
-            lastNoY = noY;
+                    lastNoX = noX;
+                    lastNoY = noCY;
+                });
+            });
         }
 
         function overlap(ax, ay, aw, ah, bx, by, bw, bh) {
@@ -175,28 +169,28 @@
         }
 
         function bestEscapePos(curX, curY) {
-            const m = getMetrics();
-            const maxX = m.w - m.bw;
-            const maxY = m.h - m.bh;
-            const areaRect = area.getBoundingClientRect();
+            const m         = getMetrics();
+            const maxX      = m.w - m.bw;
+            const maxY      = m.h - m.bh;
+            const areaRect  = area.getBoundingClientRect();
             const localCurX = curX - areaRect.left;
             const localCurY = curY - areaRect.top;
-            const yesX = parseFloat(yesBtn.style.left) || 0;
-            const yesY = parseFloat(yesBtn.style.top)  || 0;
+            const yesX      = parseFloat(yesBtn.style.left) || 0;
+            const yesY      = parseFloat(yesBtn.style.top)  || 0;
 
-            let best = null;
+            let best      = null;
             let bestScore = -1;
 
             for (let i = 0; i < 200; i++) {
                 const x = Math.random() * maxX;
                 const y = Math.random() * maxY;
 
-                const dxCur = x - localCurX;
-                const dyCur = y - localCurY;
+                const dxCur          = x - localCurX;
+                const dyCur          = y - localCurY;
                 const distFromCursor = Math.sqrt(dxCur * dxCur + dyCur * dyCur);
 
-                const dxLast = x - lastNoX;
-                const dyLast = y - lastNoY;
+                const dxLast       = x - lastNoX;
+                const dyLast       = y - lastNoY;
                 const distFromLast = Math.sqrt(dxLast * dxLast + dyLast * dyLast);
 
                 const isOverlap = overlap(x, y, m.bw, m.bh, yesX, yesY, m.yw, m.yh);
@@ -253,9 +247,9 @@
 
         function createHeart() {
             const h = document.createElement('div');
-            h.className = 'heart';
+            h.className   = 'heart';
             h.textContent = '❤';
-            h.style.left = Math.random() * 100 + 'vw';
+            h.style.left  = Math.random() * 100 + 'vw';
             h.style.animationDuration = (4 + Math.random() * 4) + 's';
             document.body.appendChild(h);
             setTimeout(() => h.remove(), 8000);
