@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Be My Valentine</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,156 +27,242 @@
             background-size: 400% 400%;
             animation: bgMove 8s infinite ease;
             overflow: hidden;
+            color: #fff;
             text-align: center;
-            color: white;
         }
 
         @keyframes bgMove {
-            0% { background-position: 0% 50% }
-            50% { background-position: 100% 50% }
-            100% { background-position: 0% 50% }
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        .card8 {
+        .card-8bit {
             background: #ff1e56;
-            border: 6px solid white;
-            padding: 40px 25px;
-            box-shadow: 10px 10px 0 black;
-            max-width: 500px;
+            border: 6px solid #fff;
+            padding: 45px 35px;
+            box-shadow: 10px 10px 0 #000;
             width: 90%;
-            position: relative;
+            max-width: 600px;
+            transform: scale(0.6);
+            opacity: 0;
+            animation: popIn 0.7s ease forwards;
+        }
+
+        @keyframes popIn {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         h1 {
-            font-size: 16px;
+            font-size: 18px;
             line-height: 1.6;
             margin-bottom: 40px;
+            animation: floatText 2s infinite ease-in-out alternate;
         }
 
-        .btnRow {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
+        @keyframes floatText {
+            from { transform: translateY(0); }
+            to   { transform: translateY(-6px); }
+        }
+
+        #btnArea {
             position: relative;
+            height: 160px;
         }
 
-        .btn8 {
-            border: 4px solid white;
-            padding: 14px 24px;
-            box-shadow: 4px 4px 0 black;
-            transition: 0.15s;
+        .btn-8bit {
+            position: absolute;
+            border: 4px solid #fff;
+            padding: 16px 28px;
+            box-shadow: 4px 4px 0 #000;
+            animation: btnPop 0.5s ease forwards;
+            cursor: pointer;
+            white-space: nowrap;
+            pointer-events: auto;
         }
 
-        .btn8:active {
-            transform: translate(2px,2px);
+        @keyframes btnPop {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .btn-8bit:active {
+            transform: translate(2px, 2px);
         }
 
         .heart {
-            position: absolute;
+            position: fixed;
             font-size: 18px;
             animation: rise 6s linear infinite;
-            opacity: .7;
+            opacity: 0.7;
+            pointer-events: none;
         }
 
         @keyframes rise {
-            0% {
-                transform: translateY(100vh) scale(.5);
-                opacity: 0;
-            }
-            10% { opacity: 1 }
-            100% {
-                transform: translateY(-10vh) scale(1.2);
-                opacity: 0;
-            }
+            0%   { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            10%  { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
         }
-
     </style>
 </head>
-
 <body>
 
-<div class="card8">
-
-    <h1>Will you be my Valentine?</h1>
-
-    <div class="btnRow">
-
-        <button id="yesBtn" class="btn btn-success btn8">
-            YES 💖
-        </button>
-
-        <button id="noBtn" class="btn btn-dark btn8">
-            NO ❌
-        </button>
-
+    <div class="card-8bit">
+        <h1>Will you be my Valentine?</h1>
+        <div id="btnArea">
+            <button id="yesBtn" class="btn btn-success btn-8bit">YES 💖</button>
+            <button id="noBtn" class="btn btn-dark btn-8bit">NO ❌</button>
+        </div>
     </div>
 
-</div>
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const area = document.getElementById('btnArea');
 
-<script>
+        let lastNoX = -1;
+        let lastNoY = -1;
+        let escapeTimer = null;
+        let cursorX = 0;
+        let cursorY = 0;
 
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
+        document.addEventListener('mousemove', e => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+        });
 
-let yesScale = 1;
+        function getMetrics() {
+            return {
+                w:  area.clientWidth,
+                h:  area.clientHeight,
+                bw: noBtn.offsetWidth,
+                bh: noBtn.offsetHeight,
+                yw: yesBtn.offsetWidth,
+                yh: yesBtn.offsetHeight
+            };
+        }
 
-function moveNo() {
+        function placeButtons() {
+            const m = getMetrics();
+            const totalW = m.yw + 20 + m.bw;
+            const startX = Math.max(0, (m.w - totalW) / 2);
+            const cy = Math.max(0, (m.h - m.yh) / 2);
 
-    const padding = 20;
+            yesBtn.style.left = startX + 'px';
+            yesBtn.style.top  = cy + 'px';
 
-    const maxX = window.innerWidth - noBtn.offsetWidth - padding;
-    const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+            const noX = startX + m.yw + 20;
+            const noY = Math.max(0, (m.h - m.bh) / 2);
 
-    const x = Math.random() * maxX;
-    const y = Math.random() * maxY;
+            noBtn.style.left = noX + 'px';
+            noBtn.style.top  = noY + 'px';
 
-    noBtn.style.position = "fixed";
-    noBtn.style.left = x + "px";
-    noBtn.style.top = y + "px";
+            lastNoX = noX;
+            lastNoY = noY;
+        }
 
-    growYes();
-}
+        function overlap(ax, ay, aw, ah, bx, by, bw, bh) {
+            return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+        }
 
-function growYes() {
+        function bestEscapePos(curX, curY) {
+            const m = getMetrics();
+            const maxX = m.w - m.bw;
+            const maxY = m.h - m.bh;
+            const areaRect = area.getBoundingClientRect();
+            const localCurX = curX - areaRect.left;
+            const localCurY = curY - areaRect.top;
+            const yesX = parseFloat(yesBtn.style.left) || 0;
+            const yesY = parseFloat(yesBtn.style.top)  || 0;
 
-    yesScale += 0.15;
-    yesBtn.style.transform = `scale(${yesScale})`;
-}
+            let best = null;
+            let bestScore = -1;
 
-/* Move only when hovered */
-noBtn.addEventListener("mouseover", moveNo);
+            for (let i = 0; i < 200; i++) {
+                const x = Math.random() * maxX;
+                const y = Math.random() * maxY;
 
-/* Mobile support */
-noBtn.addEventListener("touchstart", moveNo);
+                const dxCur = x - localCurX;
+                const dyCur = y - localCurY;
+                const distFromCursor = Math.sqrt(dxCur * dxCur + dyCur * dyCur);
 
-yesBtn.addEventListener("click", () => {
+                const dxLast = x - lastNoX;
+                const dyLast = y - lastNoY;
+                const distFromLast = Math.sqrt(dxLast * dxLast + dyLast * dyLast);
 
-    alert("Then let's go to Iceland Coffee ❤️");
+                const isOverlap = overlap(x, y, m.bw, m.bh, yesX, yesY, m.yw, m.yh);
+                if (isOverlap || distFromLast < 120) continue;
 
-    window.open("https://www.google.com/maps/place/Iceland+Coffee");
+                const score = distFromCursor * 0.7 + distFromLast * 0.3;
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = { x, y };
+                }
+            }
 
-});
+            if (!best) {
+                const corners = [
+                    { x: 0,    y: 0    },
+                    { x: maxX, y: 0    },
+                    { x: 0,    y: maxY },
+                    { x: maxX, y: maxY }
+                ];
+                best = corners.reduce((a, b) => {
+                    const da = Math.hypot(a.x - localCurX, a.y - localCurY);
+                    const db = Math.hypot(b.x - localCurX, b.y - localCurY);
+                    return db > da ? b : a;
+                });
+            }
 
-/* Floating hearts */
+            return best;
+        }
 
-function createHeart() {
+        function runEscape() {
+            const pos = bestEscapePos(cursorX, cursorY);
+            noBtn.style.left = pos.x + 'px';
+            noBtn.style.top  = pos.y + 'px';
+            lastNoX = pos.x;
+            lastNoY = pos.y;
+        }
 
-    const heart = document.createElement("div");
+        function onNoHover() {
+            clearTimeout(escapeTimer);
+            runEscape();
+            escapeTimer = setTimeout(runEscape, 80);
+        }
 
-    heart.className = "heart";
-    heart.textContent = "❤";
+        window.addEventListener('load', placeButtons);
+        window.addEventListener('resize', placeButtons);
 
-    heart.style.left = Math.random() * 100 + "vw";
-    heart.style.animationDuration = 4 + Math.random() * 4 + "s";
+        noBtn.addEventListener('mouseenter', onNoHover);
+        noBtn.addEventListener('mousemove', onNoHover);
 
-    document.body.appendChild(heart);
+        yesBtn.addEventListener('click', () => {
+            alert('Then let\'s go to Iceland Coffee ❤️');
+            window.open('https://www.google.com/maps/place/Iceland+Coffee/@23.8679947,90.3769204,15.11z/data=!4m6!3m5!1s0x3755c5001c0014a1:0xffdcc8f627de1dd0!8m2!3d23.8695384!4d90.3857818!16s%2Fg%2F11wqq66qq9?entry=ttu&g_ep=EgoyMDI2MDIxMS4wIKXMDSoASAFQAw%3D%3D');
+        });
 
-    setTimeout(() => heart.remove(), 8000);
-}
+        function createHeart() {
+            const h = document.createElement('div');
+            h.className = 'heart';
+            h.textContent = '❤';
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.animationDuration = (4 + Math.random() * 4) + 's';
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 8000);
+        }
 
-setInterval(createHeart, 500);
-
-</script>
+        setInterval(createHeart, 500);
+    </script>
 
 </body>
 </html>
