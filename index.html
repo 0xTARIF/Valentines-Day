@@ -107,11 +107,15 @@ h1 {
 </div>
 
 <script>
+
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 const area = document.getElementById("btnArea");
 
+let difficulty = 120;
+
 function placeButtons() {
+
     const centerX = area.clientWidth / 2 - yesBtn.offsetWidth / 2;
     const centerY = area.clientHeight / 2 - yesBtn.offsetHeight / 2;
 
@@ -123,35 +127,60 @@ function placeButtons() {
 }
 
 function moveNo() {
+
     const maxX = area.clientWidth - noBtn.offsetWidth;
     const maxY = area.clientHeight - noBtn.offsetHeight;
+
     const x = Math.random() * maxX;
     const y = Math.random() * maxY;
+
     noBtn.style.left = x + "px";
     noBtn.style.top = y + "px";
 }
 
 window.addEventListener("load", placeButtons);
 window.addEventListener("resize", placeButtons);
-noBtn.addEventListener("mouseenter", moveNo);
+
+area.addEventListener("mousemove", (e) => {
+
+    const rect = noBtn.getBoundingClientRect();
+
+    const distX = Math.abs(e.clientX - (rect.left + rect.width / 2));
+    const distY = Math.abs(e.clientY - (rect.top + rect.height / 2));
+
+    if (distX < difficulty && distY < difficulty) {
+        moveNo();
+        difficulty += 10;
+    }
+
+});
+
 noBtn.addEventListener("click", moveNo);
 
 yesBtn.addEventListener("click", () => {
+
     alert("Then let's go to Iceland Coffee ❤️");
-    window.open("https://www.google.com/maps/place/Iceland+Coffee/@23.8679947,90.3769204,15.11z/data=!4m6!3m5!1s0x3755c5001c0014a1:0xffdcc8f627de1dd0!8m2!3d23.8695384!4d90.3857818!16s%2Fg%2F11wqq66qq9?entry=ttu&g_ep=EgoyMDI2MDIxMS4wIKXMDSoASAFQAw%3D%3D");
+
+    window.open("https://www.google.com/maps/place/Iceland+Coffee/@23.8679947,90.3769204,15.11z/data=!4m6!3m5!1s0x3755c5001c0014a1:0xffdcc8f627de1dd0!8m2!3d23.8695384!4d90.3857818!16s%2Fg%2F11wqq66qq9?entry=ttu");
+
 });
 
 function createHeart() {
+
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.textContent = "❤";
+
     heart.style.left = Math.random() * 100 + "vw";
     heart.style.animationDuration = 4 + Math.random() * 4 + "s";
+
     document.body.appendChild(heart);
+
     setTimeout(() => heart.remove(), 8000);
 }
 
 setInterval(createHeart, 500);
+
 </script>
 
 </body>
